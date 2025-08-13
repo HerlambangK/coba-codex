@@ -19,8 +19,10 @@
             <UiDropdownMenuTrigger as-child>
               <UiButton class="h-9 w-9" variant="ghost" size="icon" title="Theme switcher">
                 <span class="sr-only">Theme switcher</span>
-                <Icon :name="currentIcon || 'lucide:sun'" class="h-[18px] w-[18px]"
-              /></UiButton>
+                <ClientOnly>
+                  <Icon :name="currentIcon || 'lucide:sun'" class="h-[18px] w-[18px]" />
+                </ClientOnly>
+              </UiButton>
             </UiDropdownMenuTrigger>
             <UiDropdownMenuContent align="end" :side-offset="5">
               <UiDropdownMenuItem
@@ -33,6 +35,17 @@
               />
             </UiDropdownMenuContent>
           </UiDropdownMenu>
+
+          <ClientOnly>
+            <template v-if="me">
+              <span class="text-sm opacity-80">{{ me.email }}</span>
+              <UiButton variant="ghost" size="sm" @click="logout">Logout</UiButton>
+            </template>
+            <template v-else>
+              <NuxtLink class="text-sm underline" to="/login">Login</NuxtLink>
+              <NuxtLink class="text-sm underline" to="/register">Register</NuxtLink>
+            </template>
+          </ClientOnly>
         </div>
       </UiContainer>
     </UiNavbar>
@@ -41,6 +54,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { useAuth } from '#imports'
   const modes = [
     { icon: "lucide:sun", title: "Light", value: "light" },
     { icon: "lucide:moon", title: "Dark", value: "dark" },
@@ -55,4 +69,9 @@
   const currentIcon = computed(() => {
     return modes.find((m) => m.value === colorMode?.preference)?.icon;
   });
+
+  const { me, fetchMe, logout } = useAuth()
+  onMounted(() => {
+    fetchMe().catch(() => {})
+  })
 </script>
