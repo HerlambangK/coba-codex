@@ -29,7 +29,8 @@
               } else {
                 activeSegmentKey = d?.data?.[index];
                 elements.forEach((el) => (el.style.opacity = `${filterOpacity}`));
-                elements[i].style.opacity = '1';
+                const el = elements[i]
+                if (el) el.style.opacity = '1';
               }
             },
           },

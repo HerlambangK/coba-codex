@@ -9,6 +9,5 @@
 </template>
 
 <script setup lang="ts">
-import AppHeader from '~/components/AppHeader.vue'
+// Components are auto-registered by Nuxt
 </script>
-

@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { getCookie, setCookie, deleteCookie } from 'h3'
 import jwt from 'jsonwebtoken'
 import prisma from './prisma'
-import type { Role } from '@prisma/client'
+type Role = 'ADMIN' | 'CUSTOMER'
 
 export const COOKIE_NAME = 'auth_token'
 
@@ -54,4 +54,3 @@ export function setAuthCookie(event: H3Event, token: string) {
 export function clearAuthCookie(event: H3Event) {
   deleteCookie(event, COOKIE_NAME, { path: '/' })
 }
-

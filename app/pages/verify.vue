@@ -24,8 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import AppContainer from '~/components/AppContainer.vue'
-import AuthCard from '~/components/AuthCard.vue'
+// Components are auto-registered
 
 const route = useRoute()
 const email = ref<string>((route.query.email as string) || '')
@@ -64,4 +63,3 @@ async function onResend() {
   }
 }
 </script>
-

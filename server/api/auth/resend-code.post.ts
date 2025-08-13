@@ -1,8 +1,8 @@
 import { defineEventHandler, readBody, createError } from 'h3'
-import prisma from '~/server/utils/prisma'
-import { checkRateLimit } from '~/server/utils/rateLimit'
+import prisma from '~~/server/utils/prisma'
+import { checkRateLimit } from '~~/server/utils/rateLimit'
 import { z } from 'zod'
-import { sendVerificationEmail } from '~/server/utils/mailer'
+import { sendVerificationEmail } from '~~/server/utils/mailer'
 
 const ResendSchema = z.object({ email: z.string().email() })
 
@@ -47,4 +47,3 @@ export default defineEventHandler(async (event) => {
 
   return { ok: true }
 })
-

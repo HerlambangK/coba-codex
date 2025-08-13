@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
-import prisma from '~/server/utils/prisma'
-import { VerifySchema } from '~/server/utils/zod'
-import { checkRateLimit } from '~/server/utils/rateLimit'
+import prisma from '~~/server/utils/prisma'
+import { VerifySchema } from '~~/server/utils/zod'
+import { checkRateLimit } from '~~/server/utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -39,4 +39,3 @@ export default defineEventHandler(async (event) => {
 
   return { ok: true }
 })
-

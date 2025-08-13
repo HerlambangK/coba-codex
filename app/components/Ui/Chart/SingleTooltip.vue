@@ -52,7 +52,9 @@
       if (wm.has(data)) {
         return wm.get(data);
       } else {
-        const style = getComputedStyle(elements[i]);
+        const el = elements[i]
+        if (!el) return ''
+        const style = getComputedStyle(el as Element);
         const omittedData = [
           { name: data.name, value: props.valueFormatter(data[props.index]), color: style.fill },
         ];

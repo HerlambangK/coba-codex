@@ -9,4 +9,3 @@ export default defineNuxtRouteMiddleware(async (to) => {
     // not logged in -> continue
   }
 })
-

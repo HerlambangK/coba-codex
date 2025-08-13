@@ -8,6 +8,5 @@
 </template>
 
 <script setup lang="ts">
-import AppContainer from '~/components/AppContainer.vue'
+// Components are auto-registered
 </script>
-

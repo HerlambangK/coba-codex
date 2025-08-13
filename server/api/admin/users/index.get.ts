@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from 'h3'
-import { getUserFromEvent } from '~/server/utils/auth'
-import prisma from '~/server/utils/prisma'
+import { getUserFromEvent } from '~~/server/utils/auth'
+import prisma from '~~/server/utils/prisma'
 
 export default defineEventHandler(async (event) => {
   const user = await getUserFromEvent(event)
@@ -13,4 +13,3 @@ export default defineEventHandler(async (event) => {
   })
   return { users }
 })
-

@@ -1,8 +1,8 @@
 import { defineEventHandler, readBody, createError } from 'h3'
-import prisma from '~/server/utils/prisma'
-import { LoginSchema } from '~/server/utils/zod'
+import prisma from '~~/server/utils/prisma'
+import { LoginSchema } from '~~/server/utils/zod'
 import argon2 from 'argon2'
-import { setAuthCookie, signToken } from '~/server/utils/auth'
+import { setAuthCookie, signToken } from '~~/server/utils/auth'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -30,4 +30,3 @@ export default defineEventHandler(async (event) => {
   setAuthCookie(event, token)
   return { role: user.role }
 })
-

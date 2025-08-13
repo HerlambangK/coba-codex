@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { z } from 'zod'
-import { getUserFromEvent } from '~/server/utils/auth'
-import prisma from '~/server/utils/prisma'
+import { getUserFromEvent } from '~~/server/utils/auth'
+import prisma from '~~/server/utils/prisma'
 
 const BodySchema = z.object({
   userId: z.string().min(1),
@@ -23,4 +23,3 @@ export default defineEventHandler(async (event) => {
   await prisma.user.update({ where: { id: userId }, data: { role } })
   return { ok: true }
 })
-

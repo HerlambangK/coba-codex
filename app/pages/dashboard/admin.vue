@@ -36,8 +36,6 @@
 </template>
 
 <script setup lang="ts">
-import AppContainer from '~/components/AppContainer.vue'
-
 type UserRow = { id: string; email: string; name: string | null; isVerified: boolean; role: 'ADMIN' | 'CUSTOMER' }
 const users = ref<UserRow[]>([])
 

@@ -1,8 +1,8 @@
 import { defineEventHandler, readBody, createError } from 'h3'
-import prisma from '~/server/utils/prisma'
-import { RegisterSchema } from '~/server/utils/zod'
+import prisma from '~~/server/utils/prisma'
+import { RegisterSchema } from '~~/server/utils/zod'
 import argon2 from 'argon2'
-import { sendVerificationEmail } from '~/server/utils/mailer'
+import { sendVerificationEmail } from '~~/server/utils/mailer'
 
 function generateCode() {
   return Math.floor(Math.random() * 1_000_000)
@@ -46,4 +46,3 @@ export default defineEventHandler(async (event) => {
 
   return { ok: true }
 })
-

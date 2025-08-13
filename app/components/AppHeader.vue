@@ -18,8 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAuth } from '~/composables/useAuth'
+import { useAuth, useRuntimeConfig } from '#imports'
 const { me, logout } = useAuth()
 const title = useRuntimeConfig().public?.appName || 'Nuxt App'
 </script>
-
