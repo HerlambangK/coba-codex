@@ -10,5 +10,5 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["/bin/sh", "-lc", "npm install && npx prisma migrate deploy && npm run dev"]
-
+# Use entrypoint script to wait for DB, apply schema, seed, and start
+CMD ["/bin/sh", "-lc", "chmod +x scripts/entrypoint.sh && sh scripts/entrypoint.sh"]
