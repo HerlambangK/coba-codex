@@ -1,50 +1,98 @@
-# Nuxt 3 UI Thing Starter
+# Nuxt 3 Full-Stack Starter (Auth + RBAC + Prisma)
 
-An opinionated Nuxt 3 starter template with components built with [UI Thing](https://ui-thing.behonbaker.com/getting-started/introduction). This is my personal port of the shadcn/ui library.
+This project is a Nuxt 3 (TypeScript + Tailwind) starter wired with PostgreSQL via Prisma, cookie-based JWT auth, RBAC (ADMIN/CUSTOMER), and email verification using a 6-digit code with rate limiting. Docker files are included for local dev with Postgres.
 
-Feel free to make changes and delete what you don't need.
+## Quick Start (npm)
 
-## Demo
-
-The starter is deployed on Netlify [here](https://ui-thing-starter.behonbaker.com/)
-
-## Getting Started
-
-Clone the repo
+1) Install dependencies
 
 ```bash
-npx --yes giget@latest gh:BayBreezy/nuxt-ui-thing-starter my-nuxt-app --install
+npm install
 ```
 
-Install the dependencies
+2) Configure environment
+
+Copy `.env.example` to `.env` and update values as needed:
 
 ```bash
-cd my-nuxt-app &&  npm install
+cp .env.example .env
 ```
 
-Start the dev server
+Set `DATABASE_URL` to your Postgres instance. For local Postgres via Docker Compose, you can keep the defaults.
+
+3) Initialize Prisma
+
+```bash
+npx prisma generate
+npx prisma migrate dev --name init
+npm run seed
+```
+
+4) Run the app
 
 ```bash
 npm run dev
 ```
 
----
+The app runs on `http://localhost:3000`.
 
-<br/>
+## Docker (dev)
 
-![Cover](/public/ui-thing-social.png)
+Run Postgres + app via Docker:
 
-## Major update
+```bash
+docker compose up --build
+```
 
-So on Jan 11, 2024, I remembered that I created this repo. I was going through github and saw where someone gave it a star.... I was like.. Hold up.. when did I create this? Then I realized it was created while I was experimenting with the Radix-Vue package (my very first attempt to replicate shadcn/ui). I was like.. I should update this repo with the latest version of UI Thing. So I did. I also updated the README.md file to reflect the changes.
+This starts:
+- `db`: Postgres 16 (port 5432)
+- `app`: Nuxt dev server (port 3000), with a healthcheck against `/api/health`.
 
-## What's included?
+Update `.env` to match the Compose defaults if needed:
 
-- All the components from UI Thing
-  - So this may impact performance. I'm not sure. I would recommend that you delete the components that you do not need.
-- [Notivue](https://notivuedocs.netlify.app/installation/nuxt.html) was also added to the project.
-  - This is not needed, I just wanted another toast library to play with. Feel free to remove it if VueSonner or the built in toast works for you.
-- Pinia
-  - This can be removed if you don't need it as well.
-- [V-Wave](https://github.com/justintaddei/v-wave)
-  - It just adds a ripple effect any component that you want. It's pretty cool. You can remove it if you don't need it.
+```
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/app?schema=public
+```
+
+## SMTP / Email
+
+For local dev, use Mailtrap or another SMTP sandbox. Set these in `.env`:
+
+```
+SMTP_HOST=sandbox.smtp.mailtrap.io
+SMTP_PORT=2525
+SMTP_USER=your_user
+SMTP_PASS=your_pass
+SMTP_FROM="Nuxt Starter <no-reply@example.com>"
+```
+
+Verification link uses `NUXT_PUBLIC_BASE_URL` and includes a 6-digit code. Code TTL defaults to 15 minutes.
+
+## Auth Overview
+
+- JWT is stored in an HTTP-only cookie `auth_token`.
+- Register sends a 6-digit verification code via email.
+- Login requires verified accounts; otherwise returns 403 with `{ needsVerification: true }`.
+- Admin-only routes under `/api/admin/*` guarded by server middleware.
+
+## Useful Commands
+
+```bash
+npm run dev            # Start dev server
+npm run build          # Build
+npm run preview        # Preview production build
+npx prisma migrate dev # Create/apply migrations (dev)
+npx prisma generate    # Generate Prisma client
+npm run seed           # Seed admin user
+```
+
+## Troubleshooting
+
+- Postgres port in use: change the published port in `docker-compose.yml` or stop existing Postgres.
+- Database connection errors: verify `DATABASE_URL` and that the `db` container is healthy.
+- Emails not received: confirm SMTP credentials and check Mailtrap inbox.
+- Session not persisting: ensure cookies are allowed and app is accessed via same origin as `NUXT_PUBLIC_BASE_URL`.
+
+## REST Client
+
+See `docs/testing.http` for runnable requests to test the full flow.

@@ -1,0 +1,66 @@
+@baseUrl = http://localhost:3000
+@email = user{{timestamp}}@example.com
+@password = P@ssw0rd123!
+@adminEmail = admin@example.com
+@adminPass = Admin123!
+
+### Register
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "name": "Test User"
+}
+
+### Resend (expect 200, then 429 within 60s)
+POST {{baseUrl}}/api/auth/resend-code
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
+### Verify (paste code from email)
+POST {{baseUrl}}/api/auth/verify
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "code": "000000"
+}
+
+### Login newly verified user
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### Me (should be authorized after login)
+GET {{baseUrl}}/api/auth/me
+
+### Admin: login as admin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPass}}"
+}
+
+### Admin: list users
+GET {{baseUrl}}/api/admin/users
+
+### Admin: change role of the first user (replace userId)
+PATCH {{baseUrl}}/api/admin/users/role
+Content-Type: application/json
+
+{
+  "userId": "replace-with-user-id",
+  "role": "ADMIN"
+}
+
