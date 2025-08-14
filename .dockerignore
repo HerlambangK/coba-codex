@@ -1,0 +1,16 @@
+# Reduce Docker build context size and avoid copying host artifacts
+node_modules
+.nuxt
+.output
+dist
+coverage
+.git
+.gitignore
+npm-debug.log*
+yarn.lock
+pnpm-lock.yaml
+*.log
+Dockerfile*
+docs/
+tmp/
+**/.DS_Store

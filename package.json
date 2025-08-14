@@ -20,8 +20,11 @@
     "ui:prettier": "npx --yes ui-thing@latest prettier",
     "ui:shortcuts": "npx --yes ui-thing@latest shortcuts",
     "ui:theme": "npx --yes ui-thing@latest theme",
-    "seed": "node --loader ts-node/esm prisma/seed.ts",
+    "seed": "node prisma/seed.cjs",
     "prisma": "prisma"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.cjs"
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.2",
@@ -66,6 +69,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.14.12",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.0",
     "@iconify-json/lucide": "^1.2.22",
     "@iconify-json/svg-spinners": "^1.2.2",

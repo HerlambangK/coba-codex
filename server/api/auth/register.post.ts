@@ -19,30 +19,45 @@ export default defineEventHandler(async (event) => {
 
   const { email, password, name } = parsed.data
 
-  const existing = await prisma.user.findUnique({ where: { email } })
-  if (existing && existing.isVerified) {
-    throw createError({ statusCode: 409, statusMessage: 'Email already registered' })
-  }
-
-  const passwordHash = await argon2.hash(password)
-
-  const user = existing
-    ? await prisma.user.update({ where: { id: existing.id }, data: { name: name || existing.name, password: passwordHash } })
-    : await prisma.user.create({ data: { email, name, password: passwordHash } })
-
-  const ttlMin = Number(process.env.VERIFICATION_CODE_TTL_MINUTES || 15)
-  const code = generateCode()
-  const expiresAt = new Date(Date.now() + ttlMin * 60_000)
-
-  await prisma.emailVerification.create({
-    data: { userId: user.id, code, expiresAt },
-  })
-
   try {
-    await sendVerificationEmail(email, code)
-  } catch (e) {
-    // Do not leak email delivery errors; still respond OK so client can retry
-  }
+    const existing = await prisma.user.findUnique({ where: { email } })
+    if (existing && existing.isVerified) {
+      throw createError({ statusCode: 409, statusMessage: 'Email already registered' })
+    }
 
-  return { ok: true }
+    const passwordHash = await argon2.hash(password)
+
+    const user = existing
+      ? await prisma.user.update({ where: { id: existing.id }, data: { name: name || existing.name, password: passwordHash } })
+      : await prisma.user.create({ data: { email, name, password: passwordHash } })
+
+    const ttlMin = Number(process.env.VERIFICATION_CODE_TTL_MINUTES || 15)
+    const code = generateCode()
+    const expiresAt = new Date(Date.now() + ttlMin * 60_000)
+
+    await prisma.emailVerification.create({
+      data: { userId: user.id, code, expiresAt },
+    })
+
+    try {
+      await sendVerificationEmail(email, code)
+    } catch {
+      // ignore email delivery errors
+    }
+
+    return { ok: true }
+  } catch (err) {
+    const e: any = err
+    const msg: string = e?.message || String(e)
+    const code: string | undefined = e?.code
+    if (code === 'P2021' || /relation .* does not exist|table .* does not exist|does not exist/i.test(msg)) {
+      throw createError({
+        statusCode: 503,
+        statusMessage: 'Service Unavailable',
+        message: 'Database not initialized. Run: npx prisma db push, then npx prisma db seed',
+      })
+    }
+    if (e?.statusCode) throw e
+    throw createError({ statusCode: 500, statusMessage: 'internal server error' })
+  }
 })

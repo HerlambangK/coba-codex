@@ -1,11 +1,10 @@
-version: "3.9"
 services:
   db:
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-appdb}
+      POSTGRES_DB: ${POSTGRES_DB:-dbname}
     ports:
       - "5432:5432"
     volumes:
@@ -22,7 +21,7 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/appdb?schema=public
+      DATABASE_URL: postgresql://herlambangk:masuk123@localhost:5432/dbname?schema=public
     env_file:
       - .env
     depends_on:
@@ -31,7 +30,11 @@ services:
     volumes:
       - .:/app
     healthcheck:
-      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))\""]
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://localhost:3000/api/health'').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"',
+        ]
       interval: 15s
       timeout: 5s
       retries: 3

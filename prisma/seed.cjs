@@ -1,8 +1,11 @@
-import { PrismaClient } from '@prisma/client'
-import argon2 from 'argon2'
+const { PrismaClient } = require('@prisma/client')
+const argon2 = require('argon2')
 
 const prisma = new PrismaClient({
-  log: [{ emit: 'stdout', level: 'warn' }, { emit: 'stdout', level: 'error' }],
+  log: [
+    { emit: 'stdout', level: 'warn' },
+    { emit: 'stdout', level: 'error' },
+  ],
 })
 
 async function main() {
@@ -33,8 +36,8 @@ async function main() {
 }
 
 main()
-  .catch((e: any) => {
-    const msg = e?.message || String(e)
+  .catch((e) => {
+    const msg = e && e.message ? e.message : String(e)
     if (/does not exist|relation .* does not exist/i.test(msg)) {
       console.error('\n[seed] Tables missing. Run:\n  npx prisma db push\nthen re-run seeding.')
     } else {
@@ -43,5 +46,5 @@ main()
     process.exitCode = 1
   })
   .finally(async () => {
-    await prisma.$disconnect()
+    prisma.$disconnect()
   })
