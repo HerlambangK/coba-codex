@@ -53,7 +53,7 @@
     "embla-carousel-vue": "^8.5.2",
     "jszip": "^3.10.1",
     "notivue": "^2.4.5",
-    "pinia": "^2.3.0",
+    "pinia": "^3.0.3",
     "radix-vue": "^1.9.12",
     "tailwind-variants": "^0.3.0",
     "v-wave": "^3.0.2",
