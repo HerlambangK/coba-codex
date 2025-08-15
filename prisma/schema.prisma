@@ -37,6 +37,19 @@ model EmailVerification {
   @@index([code])
 }
 
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([code])
+}
+
 // Simple tumbling window rate limiter
 model RateLimit {
   key     String
@@ -46,4 +59,3 @@ model RateLimit {
   @@id([key, window])
   @@index([key])
 }
-

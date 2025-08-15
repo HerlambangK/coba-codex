@@ -28,3 +28,20 @@ export const VerifySchema = z.object({
 
 export type VerifyInput = z.infer<typeof VerifySchema>
 
+export const ForgotPasswordSchema = z.object({
+  email: z.string().email(),
+})
+
+export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>
+
+export const ResetPasswordSchema = z.object({
+  email: z.string().email(),
+  code: z.string().regex(/^\d{6}$/, 'Code must be 6 digits'),
+  newPassword: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(passwordComplexity, 'Must include upper, lower, number, and symbol')
+    .max(72, 'Password too long'),
+})
+
+export type ResetPasswordInput = z.infer<typeof ResetPasswordSchema>
