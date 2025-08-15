@@ -18,6 +18,7 @@
         <button :disabled="loading" class="px-4 py-2 bg-primary text-primary-foreground rounded">
           {{ loading ? 'Creating...' : 'Create account' }}
         </button>
+        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
       </form>
       <p class="mt-4 text-sm">Already have an account? <NuxtLink to="/login" class="underline">Login</NuxtLink></p>
     </AuthCard>
@@ -31,14 +32,16 @@ const email = ref('')
 const password = ref('')
 const name = ref('')
 const loading = ref(false)
+const error = ref('')
 
 async function onSubmit() {
   loading.value = true
+  error.value = ''
   try {
     await $fetch('/api/auth/register', { method: 'POST', body: { email: email.value, password: password.value, name: name.value || undefined } })
     navigateTo(`/verify?email=${encodeURIComponent(email.value)}`)
-  } catch (e) {
-    console.error(e)
+  } catch (e: any) {
+    error.value = e?.data?.message || 'Failed to register'
   } finally {
     loading.value = false
   }

@@ -38,7 +38,7 @@ async function onSubmit() {
     if (e?.status === 403 && e?.data?.needsVerification) {
       return navigateTo(`/verify?email=${encodeURIComponent(email.value)}`)
     }
-    error.value = 'Invalid credentials'
+    error.value = e?.data?.message || 'Invalid credentials'
   } finally {
     loading.value = false
   }
