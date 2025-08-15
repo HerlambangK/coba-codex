@@ -64,3 +64,20 @@ Content-Type: application/json
   "role": "ADMIN"
 }
 
+### Forgot password (expect 200; repeat within 60s to see 429)
+POST {{baseUrl}}/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
+### Reset password (paste code from email)
+POST {{baseUrl}}/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "code": "000000",
+  "newPassword": "{{password}}"
+}
