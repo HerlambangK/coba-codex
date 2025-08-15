@@ -15,6 +15,7 @@
         </button>
         <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
       </form>
+      <p class="mt-2 text-sm"><NuxtLink to="/forgot" class="underline">Forgot password?</NuxtLink></p>
       <p class="mt-4 text-sm">New? <NuxtLink to="/register" class="underline">Create an account</NuxtLink></p>
     </AuthCard>
   </AppContainer>
