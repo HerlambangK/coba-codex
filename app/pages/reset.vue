@@ -1,13 +1,13 @@
 <template>
   <AppContainer>
-    <AuthCard title="Reset password">
+    <AuthCard title="Atur ulang kata sandi">
       <form class="space-y-4" @submit.prevent="onSubmit">
         <div class="space-y-2">
           <label class="block text-sm">Email</label>
           <input v-model="email" type="email" class="w-full border rounded px-3 py-2" required />
         </div>
         <div class="space-y-2">
-          <label class="block text-sm">6-digit code</label>
+          <label class="block text-sm">Kode 6 digit</label>
           <input
             v-model="code"
             type="text"
@@ -22,17 +22,17 @@
           />
         </div>
         <div class="space-y-2">
-          <label class="block text-sm">New password</label>
+          <label class="block text-sm">Kata sandi baru</label>
           <input v-model="newPassword" type="password" class="w-full border rounded px-3 py-2" required />
-          <p class="text-xs opacity-70">8+ chars with upper, lower, number, and symbol.</p>
+          <p class="text-xs opacity-70">Minimal 8 karakter, kombinasi huruf besar, huruf kecil, angka, dan simbol.</p>
         </div>
         <button :disabled="loading" class="px-4 py-2 bg-primary text-primary-foreground rounded">
-          {{ loading ? 'Resetting...' : 'Reset password' }}
+          {{ loading ? 'Mengatur ulang...' : 'Atur ulang kata sandi' }}
         </button>
         <p v-if="info" class="text-sm text-green-700">{{ info }}</p>
         <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
       </form>
-      <p class="mt-4 text-sm"><NuxtLink to="/login" class="underline">Back to login</NuxtLink></p>
+      <p class="mt-4 text-sm"><NuxtLink to="/login" class="underline">Kembali ke login</NuxtLink></p>
     </AuthCard>
   </AppContainer>
 </template>
@@ -55,13 +55,12 @@ async function onSubmit() {
       method: 'POST',
       body: { email: email.value, code: code.value, newPassword: newPassword.value },
     })
-    info.value = 'Password updated. You can now log in.'
+    info.value = 'Kata sandi diperbarui. Anda sekarang bisa masuk.'
     setTimeout(() => navigateTo('/login'), 800)
   } catch (e: any) {
-    error.value = e?.data?.message || 'Failed to reset password'
+    error.value = e?.data?.message || 'Gagal mengatur ulang kata sandi'
   } finally {
     loading.value = false
   }
 }
 </script>
-

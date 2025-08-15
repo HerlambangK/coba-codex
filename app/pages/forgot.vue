@@ -1,18 +1,18 @@
 <template>
   <AppContainer>
-    <AuthCard title="Forgot password">
+    <AuthCard title="Lupa kata sandi">
       <form class="space-y-4" @submit.prevent="onSubmit">
         <div class="space-y-2">
           <label class="block text-sm">Email</label>
           <input v-model="email" type="email" class="w-full border rounded px-3 py-2" required />
         </div>
         <button :disabled="loading" class="px-4 py-2 bg-primary text-primary-foreground rounded">
-          {{ loading ? 'Sending...' : 'Send reset link' }}
+          {{ loading ? 'Mengirim...' : 'Kirim tautan reset' }}
         </button>
         <p v-if="info" class="text-sm text-green-700">{{ info }}</p>
         <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
       </form>
-      <p class="mt-4 text-sm"><NuxtLink to="/login" class="underline">Back to login</NuxtLink></p>
+      <p class="mt-4 text-sm"><NuxtLink to="/login" class="underline">Kembali ke login</NuxtLink></p>
     </AuthCard>
   </AppContainer>
   
@@ -30,12 +30,11 @@ async function onSubmit() {
   error.value = ''
   try {
     await $fetch('/api/auth/forgot-password', { method: 'POST', body: { email: email.value } })
-    info.value = 'If the email exists, we\'ve sent instructions.'
+    info.value = 'Jika email terdaftar, kami telah mengirim instruksi.'
   } catch (e: any) {
-    error.value = e?.data?.message || 'Failed to send reset email'
+    error.value = e?.data?.message || 'Gagal mengirim email reset'
   } finally {
     loading.value = false
   }
 }
 </script>
-

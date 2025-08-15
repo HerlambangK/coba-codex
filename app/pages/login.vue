@@ -1,6 +1,6 @@
 <template>
   <AppContainer>
-    <AuthCard title="Login">
+    <AuthCard title="Masuk">
       <form class="space-y-4" @submit.prevent="onSubmit">
         <div class="space-y-2">
           <label class="block text-sm">Email</label>
@@ -11,12 +11,12 @@
           <input v-model="password" type="password" class="w-full border rounded px-3 py-2" required />
         </div>
         <button :disabled="loading" class="px-4 py-2 bg-primary text-primary-foreground rounded">
-          {{ loading ? 'Logging in...' : 'Login' }}
+          {{ loading ? 'Memproses...' : 'Masuk' }}
         </button>
         <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
       </form>
-      <p class="mt-2 text-sm"><NuxtLink to="/forgot" class="underline">Forgot password?</NuxtLink></p>
-      <p class="mt-4 text-sm">New? <NuxtLink to="/register" class="underline">Create an account</NuxtLink></p>
+      <p class="mt-2 text-sm"><NuxtLink to="/forgot" class="underline">Lupa kata sandi?</NuxtLink></p>
+      <p class="mt-4 text-sm">Baru di sini? <NuxtLink to="/register" class="underline">Buat akun</NuxtLink></p>
     </AuthCard>
   </AppContainer>
 </template>
@@ -39,7 +39,7 @@ async function onSubmit() {
     if (e?.status === 403 && e?.data?.needsVerification) {
       return navigateTo(`/verify?email=${encodeURIComponent(email.value)}`)
     }
-    error.value = e?.data?.message || 'Invalid credentials'
+    error.value = e?.data?.message || 'Email atau kata sandi salah'
   } finally {
     loading.value = false
   }
