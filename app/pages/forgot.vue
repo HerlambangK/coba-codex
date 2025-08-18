@@ -19,23 +19,37 @@
 <script setup lang="ts">
 const email = ref('')
 const loading = ref(false)
-const { toast } = useToast()
+const alertOpen = ref(false)
+const alertTitle = ref('')
+const alertDesc = ref('')
 
 async function onSubmit() {
   loading.value = true
   try {
     await $fetch('/api/auth/forgot-password', { method: 'POST', body: { email: email.value } })
-    toast({ title: 'Cek email Anda', description: 'Jika email terdaftar, kami telah mengirim instruksi.', variant: 'info' })
+    alertTitle.value = 'Cek email Anda'
+    alertDesc.value = 'Jika email terdaftar, kami telah mengirim instruksi.'
+    alertOpen.value = true
   } catch (e: any) {
-    if (e?.status === 404) {
-      toast({ title: 'Email tidak terdaftar', variant: 'destructive' })
-    } else if (e?.status === 403) {
-      toast({ title: 'Email belum terverifikasi', description: 'Silakan verifikasi email terlebih dahulu.', variant: 'warning' })
-    } else {
-      toast({ title: 'Gagal mengirim email reset', description: e?.data?.message || 'Terjadi kesalahan', variant: 'destructive' })
-    }
+    alertTitle.value = e?.status === 404
+      ? 'Email tidak terdaftar'
+      : e?.status === 403
+      ? 'Email belum terverifikasi'
+      : 'Gagal mengirim email reset'
+    alertDesc.value = e?.data?.message || (e?.status === 403 ? 'Silakan verifikasi email terlebih dahulu.' : '')
+    alertOpen.value = true
   } finally {
     loading.value = false
   }
 }
+</script>
+
+<!-- Alert dialog for forgot-password result -->
+<UiAlertDialog :open="alertOpen" @update:open="val => (alertOpen = val)" :title="alertTitle" :description="alertDesc">
+  <template #footer>
+    <UiAlertDialogFooter>
+      <UiAlertDialogAction text="Tutup" @click="alertOpen = false" />
+    </UiAlertDialogFooter>
+  </template>
+</UiAlertDialog>
 </script>

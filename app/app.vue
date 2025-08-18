@@ -5,9 +5,8 @@
       <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>
-      <!-- Delete the toast that you don't need -->
-      <UiVueSonner />
-      <UiNotivue />
+      <!-- Toast system -->
+      <UiToastToaster />
     </div>
   </ConfigProvider>
 </template>
