@@ -41,9 +41,15 @@ export default defineEventHandler(async (event) => {
   const expiresAt = new Date(Date.now() + ttlMin * 60_000)
   await prisma.emailVerification.create({ data: { userId: user.id, code, expiresAt } })
 
+  if (process.env.NODE_ENV !== 'production' || String(process.env.MAIL_LOG || '').toLowerCase() === 'true') {
+    console.log(`[mail][dev] Resent verification code for ${email}:`, code)
+  }
+
   try {
     await sendVerificationEmail(email, code)
-  } catch {}
+  } catch (e: any) {
+    console.error('[mail] resend failed:', e?.message || String(e))
+  }
 
   return { ok: true }
 })

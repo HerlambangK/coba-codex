@@ -39,10 +39,14 @@ export default defineEventHandler(async (event) => {
       data: { userId: user.id, code, expiresAt },
     })
 
+    if (process.env.NODE_ENV !== 'production' || String(process.env.MAIL_LOG || '').toLowerCase() === 'true') {
+      console.log(`[mail][dev] Verification code for ${email}:`, code)
+    }
+
     try {
       await sendVerificationEmail(email, code)
-    } catch {
-      // ignore email delivery errors
+    } catch (e: any) {
+      console.error('[mail] send failed:', e?.message || String(e))
     }
 
     return { ok: true }

@@ -1,5 +1,7 @@
 import nodemailer, { Transporter } from "nodemailer";
-import { renderMail, type MailTemplate, type MailTemplateData } from './mailTemplates'
+import type { MailTemplate, MailTemplateData } from "./mailTemplates";
+
+import { renderMail } from "./mailTemplates";
 
 const env = {
   SMTP_HOST: process.env.SMTP_HOST || "localhost",
@@ -87,16 +89,26 @@ async function getTransporter() {
 
 /** Dapatkan alamat FROM yang aman untuk provider tertentu (misal Gmail). */
 function getFrom() {
-  let from = env.SMTP_FROM || env.SMTP_USER || "no-reply@example.com"
-  if (isGmail) from = env.SMTP_USER
-  return from
+  let from = "no-reply@example.com";
+  // let from = env.SMTP_FROM || "no-reply@example.com";
+  // if (isGmail) from = env.SMTP_USER;
+  return from;
 }
 
 /** Kirim email berbasis template, termasuk logging dan Ethereal preview. */
-export async function sendMailTemplate(to: string, template: MailTemplate, data: Partial<MailTemplateData>) {
-  const tx = await getTransporter()
-  const filled = { appName: env.APP_NAME, baseUrl: env.BASE_URL || undefined, to, ...data } as MailTemplateData
-  const { subject, text, html } = renderMail(template, filled)
+export async function bsendMailTemplate(
+  to: string,
+  template: MailTemplate,
+  data: Partial<MailTemplateData>
+) {
+  const tx = await getTransporter();
+  const filled = {
+    appName: env.APP_NAME,
+    baseUrl: env.BASE_URL || undefined,
+    to,
+    ...data,
+  } as MailTemplateData;
+  const { subject, text, html } = renderMail(template, filled);
   try {
     const info = await tx.sendMail({
       from: getFrom(),
@@ -105,46 +117,46 @@ export async function sendMailTemplate(to: string, template: MailTemplate, data:
       text,
       html,
       headers: isGmail ? { "X-Priority": "3", "X-Mailer": "Nodemailer" } : undefined,
-    })
+    });
     if (env.MAIL_LOG) {
-      console.log("[mail] MessageId:", info.messageId)
-      const preview = nodemailer.getTestMessageUrl(info as any)
-      if (preview) console.log("[mail] Preview URL:", preview)
-      const eth = (tx as any).__ethereal
+      console.log("[mail] MessageId:", info.messageId);
+      const preview = nodemailer.getTestMessageUrl(info as any);
+      if (preview) console.log("[mail] Preview URL:", preview);
+      const eth = (tx as any).__ethereal;
       if (eth) {
-        console.log("[mail] Ethereal inbox:", eth.user)
-        console.log("[mail] Ethereal preview:", nodemailer.getTestMessageUrl(info as any))
+        console.log("[mail] Ethereal inbox:", eth.user);
+        console.log("[mail] Ethereal preview:", nodemailer.getTestMessageUrl(info as any));
       }
     }
-    return info
+    return info;
   } catch (err: any) {
-    const details = err?.response || err?.message || String(err)
-    if (env.MAIL_LOG) console.error("[mail] sendMail error:", details)
+    const details = err?.response || err?.message || String(err);
+    if (env.MAIL_LOG) console.error("[mail] sendMail error:", details);
     if (isGmail) {
       console.error(
         "[mail] Gmail hint: Pastikan pakai APP PASSWORD (bukan password biasa) dan 2FA aktif. " +
           "Gunakan port 465 + SMTP_SECURE=true atau 587 + SMTP_SECURE=false."
-      )
+      );
     }
-    throw err
+    throw err;
   }
 }
 
 export async function sendVerificationEmail(to: string, code: string) {
   const link = env.BASE_URL
     ? `${env.BASE_URL}/verify?email=${encodeURIComponent(to)}&code=${encodeURIComponent(code)}`
-    : ''
-  return sendMailTemplate(to, 'verify-code', {
+    : "";
+  return sendMailTemplate(to, "verify-code", {
     to,
     code,
     link,
     expiresMin: Number(process.env.VERIFICATION_CODE_TTL_MINUTES || 15),
-  })
+  });
 }
 
 export async function sendPasswordResetEmail(
   to: string,
   opts: { code?: string; link?: string; expiresMin?: number } = {}
 ) {
-  return sendMailTemplate(to, 'reset-password', { to, ...opts })
+  return sendMailTemplate(to, "reset-password", { to, ...opts });
 }
