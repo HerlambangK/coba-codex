@@ -3,16 +3,14 @@
     <AuthCard title="Lupa kata sandi">
       <form class="space-y-4" @submit.prevent="onSubmit">
         <div class="space-y-2">
-          <label class="block text-sm">Email</label>
-          <input v-model="email" type="email" class="w-full border rounded px-3 py-2" required />
+          <UiLabel for="email">Email</UiLabel>
+          <UiInput id="email" v-model="email" type="email" required />
         </div>
-        <button :disabled="loading" class="px-4 py-2 bg-primary text-primary-foreground rounded">
+        <UiButton type="submit" :disabled="loading" class="w-full">
           {{ loading ? 'Mengirim...' : 'Kirim tautan reset' }}
-        </button>
-        <p v-if="info" class="text-sm text-green-700">{{ info }}</p>
-        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+        </UiButton>
       </form>
-      <p class="mt-4 text-sm"><NuxtLink to="/login" class="underline">Kembali ke login</NuxtLink></p>
+      <div class="mt-4 text-sm"><NuxtLink to="/login" class="underline">Kembali ke login</NuxtLink></div>
     </AuthCard>
   </AppContainer>
   
@@ -21,18 +19,21 @@
 <script setup lang="ts">
 const email = ref('')
 const loading = ref(false)
-const info = ref('')
-const error = ref('')
+const { toast } = useToast()
 
 async function onSubmit() {
   loading.value = true
-  info.value = ''
-  error.value = ''
   try {
     await $fetch('/api/auth/forgot-password', { method: 'POST', body: { email: email.value } })
-    info.value = 'Jika email terdaftar, kami telah mengirim instruksi.'
+    toast({ title: 'Cek email Anda', description: 'Jika email terdaftar, kami telah mengirim instruksi.', variant: 'info' })
   } catch (e: any) {
-    error.value = e?.data?.message || 'Gagal mengirim email reset'
+    if (e?.status === 404) {
+      toast({ title: 'Email tidak terdaftar', variant: 'destructive' })
+    } else if (e?.status === 403) {
+      toast({ title: 'Email belum terverifikasi', description: 'Silakan verifikasi email terlebih dahulu.', variant: 'warning' })
+    } else {
+      toast({ title: 'Gagal mengirim email reset', description: e?.data?.message || 'Terjadi kesalahan', variant: 'destructive' })
+    }
   } finally {
     loading.value = false
   }
