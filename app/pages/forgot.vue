@@ -10,6 +10,9 @@
           {{ loading ? 'Mengirim...' : 'Kirim tautan reset' }}
         </UiButton>
       </form>
+      <div class="mt-4">
+        <UiAlert v-model="alertOpen" :title="alertTitle" :description="alertDesc" />
+      </div>
       <div class="mt-4 text-sm"><NuxtLink to="/login" class="underline">Kembali ke login</NuxtLink></div>
     </AuthCard>
   </AppContainer>
@@ -44,7 +47,3 @@ async function onSubmit() {
 }
 </script>
 
-<!-- Inline Alert for forgot-password result -->
-<div class="mt-4">
-  <UiAlert v-model="alertOpen" :title="alertTitle" :description="alertDesc" />
-  </div>

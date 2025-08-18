@@ -58,8 +58,3 @@ async function onSubmit() {
   }
 }
 </script>
-
-<!-- Inline Alert for register result -->
-<div class="mt-4">
-  <UiAlert v-model="alertShown" :title="alertTitle" :description="alertDesc" :variant="alertVariant" :icon="alertIcon" />
-  </div>

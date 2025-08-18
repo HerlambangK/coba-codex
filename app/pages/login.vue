@@ -10,10 +10,13 @@
           <UiLabel for="password">Password</UiLabel>
           <UiInput id="password" v-model="password" type="password" required />
         </div>
-        <UiButton type="submit" :disabled="loading" class="w-full">
+      <UiButton type="submit" :disabled="loading" class="w-full">
           {{ loading ? 'Memproses...' : 'Masuk' }}
         </UiButton>
       </form>
+      <div class="mt-4">
+        <UiAlert v-model="alertShown" :title="alertTitle" :description="alertDesc" :variant="alertVariant" :icon="alertIcon" />
+      </div>
       <div class="mt-2 text-sm"><NuxtLink to="/forgot" class="underline">Lupa kata sandi?</NuxtLink></div>
       <div class="mt-4 text-sm">Baru di sini? <NuxtLink to="/register" class="underline">Buat akun</NuxtLink></div>
     </AuthCard>
@@ -64,7 +67,3 @@ async function onSubmit() {
 }
 </script>
 
-<!-- Inline Alert for login result (errors) -->
-<div class="mt-4">
-  <UiAlert v-model="alertShown" :title="alertTitle" :description="alertDesc" :variant="alertVariant" :icon="alertIcon" />
-  </div>
