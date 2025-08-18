@@ -22,8 +22,12 @@ export default defineEventHandler(async (event) => {
   try {
     const user = await prisma.user.findUnique({ where: { email } })
     if (!user) {
-      // Avoid enumeration; pretend success
-      return { ok: true }
+      throw createError({ statusCode: 404, statusMessage: 'Email tidak terdaftar' })
+    }
+
+    // Blokir jika belum terverifikasi
+    if (!user.isVerified) {
+      throw createError({ statusCode: 403, statusMessage: 'Email belum terverifikasi. Silakan verifikasi terlebih dahulu.' })
     }
 
     // Cooldown: 1 per 60s and daily cap 5/day

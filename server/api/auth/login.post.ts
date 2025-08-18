@@ -14,12 +14,12 @@ export default defineEventHandler(async (event) => {
   const { email, password } = parsed.data
   const user = await prisma.user.findUnique({ where: { email } })
   if (!user) {
-    throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' })
+    throw createError({ statusCode: 404, statusMessage: 'Email tidak terdaftar' })
   }
 
   const valid = await argon2.verify(user.password, password)
   if (!valid) {
-    throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' })
+    throw createError({ statusCode: 401, statusMessage: 'Password salah' })
   }
 
   if (!user.isVerified) {
