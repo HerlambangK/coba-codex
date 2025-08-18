@@ -3,26 +3,25 @@
     <AuthCard title="Verifikasi email Anda">
       <form class="space-y-4" @submit.prevent="onSubmit">
         <div class="space-y-2">
-          <label class="block text-sm">Email</label>
-          <input v-model="email" type="email" class="w-full border rounded px-3 py-2" required />
+          <UiLabel for="email">Email</UiLabel>
+          <UiInput id="email" v-model="email" type="email" required />
         </div>
         <div class="space-y-2">
-          <label class="block text-sm">Kode 6 digit</label>
-
-          <input v-model="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}"
-            maxlength="6" class="w-full border rounded px-3 py-2 tracking-widest" required
-            @input="code = code.replace(/\\D/g, '').slice(0, 6)" title="Masukkan 6 digit angka" />
+          <UiLabel for="code">Kode 6 digit</UiLabel>
+          <UiPinInput v-model="code" :input-count="6" />
         </div>
         <div class="flex items-center gap-3">
-          <button :disabled="loading" class="px-4 py-2 bg-primary text-primary-foreground rounded">
+          <UiButton :disabled="loading" type="submit">
             {{ loading ? 'Memverifikasi...' : 'Verifikasi' }}
-          </button>
-          <button :disabled="resending" type="button" class="text-sm underline" @click="onResend">{{ resending ?
-            'Mengirim ulang...' : 'Kirim ulang kode' }}</button>
+          </UiButton>
+          <UiButton :disabled="resending" type="button" variant="ghost" class="underline p-0" @click="onResend">
+            {{ resending ? 'Mengirim ulang...' : 'Kirim ulang kode' }}
+          </UiButton>
         </div>
-        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
-        <p v-if="info" class="text-sm text-green-700">{{ info }}</p>
       </form>
+      <div class="mt-4">
+        <UiAlert v-model="alertShown" :title="alertTitle" :description="alertDesc" :variant="alertVariant" :icon="alertIcon" />
+      </div>
     </AuthCard>
   </AppContainer>
 </template>
@@ -35,19 +34,28 @@ const email = ref<string>((route.query.email as string) || '')
 const code = ref<string>((route.query.code as string) || '')
 const loading = ref(false)
 const resending = ref(false)
-const error = ref('')
-const info = ref('')
+const alertShown = ref(false)
+const alertTitle = ref('')
+const alertDesc = ref('')
+const alertVariant = ref<'default' | 'destructive' | 'info' | 'success' | 'warning'>('default')
+const alertIcon = ref<string | undefined>(undefined)
 
 async function onSubmit() {
   loading.value = true
-  error.value = ''
-  info.value = ''
   try {
     await $fetch('/api/auth/verify', { method: 'POST', body: { email: email.value, code: code.value } })
-    info.value = 'Berhasil diverifikasi. Anda bisa masuk sekarang.'
+    alertTitle.value = 'Berhasil diverifikasi'
+    alertDesc.value = 'Anda bisa masuk sekarang.'
+    alertVariant.value = 'success'
+    alertIcon.value = 'lucide:badge-check'
+    alertShown.value = true
     setTimeout(() => navigateTo('/login'), 800)
   } catch (e: any) {
-    error.value = e?.data?.message || 'Kode tidak valid atau kedaluwarsa'
+    alertTitle.value = 'Gagal verifikasi'
+    alertDesc.value = e?.data?.message || 'Kode tidak valid atau kedaluwarsa'
+    alertVariant.value = 'destructive'
+    alertIcon.value = 'lucide:triangle-alert'
+    alertShown.value = true
   } finally {
     loading.value = false
   }
@@ -55,13 +63,19 @@ async function onSubmit() {
 
 async function onResend() {
   resending.value = true
-  error.value = ''
-  info.value = ''
   try {
     await $fetch('/api/auth/resend-code', { method: 'POST', body: { email: email.value } })
-    info.value = 'Kode dikirim. Periksa email Anda.'
+    alertTitle.value = 'Kode dikirim'
+    alertDesc.value = 'Periksa email Anda.'
+    alertVariant.value = 'info'
+    alertIcon.value = 'lucide:mail'
+    alertShown.value = true
   } catch (e: any) {
-    if (e?.status === 429) info.value = e?.data?.message || 'Harap tunggu sebelum meminta lagi'
+    alertTitle.value = 'Terlalu sering'
+    alertDesc.value = e?.data?.message || 'Harap tunggu sebelum meminta lagi'
+    alertVariant.value = 'warning'
+    alertIcon.value = 'lucide:clock'
+    alertShown.value = true
   } finally {
     resending.value = false
   }
