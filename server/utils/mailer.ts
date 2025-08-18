@@ -96,7 +96,7 @@ function getFrom() {
 }
 
 /** Kirim email berbasis template, termasuk logging dan Ethereal preview. */
-export async function bsendMailTemplate(
+export async function sendMailTemplate(
   to: string,
   template: MailTemplate,
   data: Partial<MailTemplateData>
