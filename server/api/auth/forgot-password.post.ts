@@ -18,27 +18,28 @@ export default defineEventHandler(async (event) => {
   }
 
   const { email } = parsed.data
-  const user = await prisma.user.findUnique({ where: { email } })
-  if (!user) {
-    // Avoid enumeration; pretend success
-    return { ok: true }
-  }
-
-  // Cooldown: 1 per 60s and daily cap 5/day
-  const cooldown = await checkRateLimit(`forgot:${user.id}`, 1, 60)
-  if (!cooldown.allowed) {
-    throw createError({ statusCode: 429, statusMessage: `Please wait ${cooldown.retryAfterSec}s before requesting again` })
-  }
-  const daily = await checkRateLimit(`forgotday:${user.id}`, 5, 86400)
-  if (!daily.allowed) {
-    throw createError({ statusCode: 429, statusMessage: 'Daily limit reached' })
-  }
-
-  const ttlMin = Number(process.env.VERIFICATION_CODE_TTL_MINUTES || 15)
-  const code = generateCode()
-  const expiresAt = new Date(Date.now() + ttlMin * 60_000)
 
   try {
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (!user) {
+      // Avoid enumeration; pretend success
+      return { ok: true }
+    }
+
+    // Cooldown: 1 per 60s and daily cap 5/day
+    const cooldown = await checkRateLimit(`forgot:${user.id}`, 1, 60)
+    if (!cooldown.allowed) {
+      throw createError({ statusCode: 429, statusMessage: `Please wait ${cooldown.retryAfterSec}s before requesting again` })
+    }
+    const daily = await checkRateLimit(`forgotday:${user.id}`, 5, 86400)
+    if (!daily.allowed) {
+      throw createError({ statusCode: 429, statusMessage: 'Daily limit reached' })
+    }
+
+    const ttlMin = Number(process.env.VERIFICATION_CODE_TTL_MINUTES || 15)
+    const code = generateCode()
+    const expiresAt = new Date(Date.now() + ttlMin * 60_000)
+
     await prisma.passwordReset.create({ data: { userId: user.id, code, expiresAt } })
 
     if (process.env.NODE_ENV !== 'production' || String(process.env.MAIL_LOG || '').toLowerCase() === 'true') {
@@ -52,6 +53,8 @@ export default defineEventHandler(async (event) => {
     } catch (e: any) {
       console.error('[mail] reset send failed:', e?.message || String(e))
     }
+
+    return { ok: true }
   } catch (err) {
     const e: any = err
     const msg: string = e?.message || String(e)
@@ -63,10 +66,14 @@ export default defineEventHandler(async (event) => {
         message: 'Database not initialized. Run: npx prisma db push, then npx prisma db seed',
       })
     }
+    if (codeP === 'P1001' || codeP === 'P1002' || /ECONNREFUSED|ENOTFOUND|timeout|getaddrinfo/i.test(msg)) {
+      throw createError({
+        statusCode: 503,
+        statusMessage: 'Service Unavailable',
+        message: 'Database not reachable. Ensure Postgres is running and run migrations (npx prisma migrate dev).',
+      })
+    }
     if (e?.statusCode) throw e
     throw createError({ statusCode: 500, statusMessage: 'internal server error' })
   }
-
-  return { ok: true }
 })
-
