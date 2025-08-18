@@ -23,9 +23,11 @@
 <script setup lang="ts">
 import { useAuth } from '#imports'
 const { toast } = useToast()
-const alertOpen = ref(false)
+const alertShown = ref(false)
 const alertTitle = ref('')
 const alertDesc = ref('')
+const alertVariant = ref<'default' | 'destructive' | 'info' | 'success' | 'warning'>('default')
+const alertIcon = ref<string | undefined>(undefined)
 // Components are auto-registered by Nuxt
 const { login } = useAuth()
 const email = ref('')
@@ -41,24 +43,28 @@ async function onSubmit() {
     if (e?.status === 403 && e?.data?.needsVerification) {
       return navigateTo(`/verify?email=${encodeURIComponent(email.value)}`)
     }
-    alertTitle.value = e?.status === 404
-      ? 'Email tidak terdaftar'
-      : e?.status === 401
-      ? 'Password salah'
-      : 'Gagal masuk'
+    if (e?.status === 404) {
+      alertTitle.value = 'Email tidak terdaftar'
+      alertVariant.value = 'destructive'
+      alertIcon.value = 'lucide:mail-x'
+    } else if (e?.status === 401) {
+      alertTitle.value = 'Password salah'
+      alertVariant.value = 'destructive'
+      alertIcon.value = 'lucide:lock-keyhole'
+    } else {
+      alertTitle.value = 'Gagal masuk'
+      alertVariant.value = 'destructive'
+      alertIcon.value = 'lucide:triangle-alert'
+    }
     alertDesc.value = e?.data?.message || ''
-    alertOpen.value = true
+    alertShown.value = true
   } finally {
     loading.value = false
   }
 }
 </script>
 
-<!-- Alert dialog for login result (errors) -->
-<UiAlertDialog :open="alertOpen" @update:open="val => (alertOpen = val)" :title="alertTitle" :description="alertDesc">
-  <template #footer>
-    <UiAlertDialogFooter>
-      <UiAlertDialogAction text="Tutup" @click="alertOpen = false" />
-    </UiAlertDialogFooter>
-  </template>
-</UiAlertDialog>
+<!-- Inline Alert for login result (errors) -->
+<div class="mt-4">
+  <UiAlert v-model="alertShown" :title="alertTitle" :description="alertDesc" :variant="alertVariant" :icon="alertIcon" />
+  </div>

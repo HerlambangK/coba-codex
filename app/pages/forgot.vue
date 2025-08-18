@@ -44,12 +44,7 @@ async function onSubmit() {
 }
 </script>
 
-<!-- Alert dialog for forgot-password result -->
-<UiAlertDialog :open="alertOpen" @update:open="val => (alertOpen = val)" :title="alertTitle" :description="alertDesc">
-  <template #footer>
-    <UiAlertDialogFooter>
-      <UiAlertDialogAction text="Tutup" @click="alertOpen = false" />
-    </UiAlertDialogFooter>
-  </template>
-</UiAlertDialog>
-</script>
+<!-- Inline Alert for forgot-password result -->
+<div class="mt-4">
+  <UiAlert v-model="alertOpen" :title="alertTitle" :description="alertDesc" />
+  </div>

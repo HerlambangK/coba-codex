@@ -3,24 +3,23 @@
     <AuthCard title="Buat akun">
       <form class="space-y-4" @submit.prevent="onSubmit">
         <div class="space-y-2">
-          <label class="block text-sm">Email</label>
-          <input v-model="email" type="email" class="w-full border rounded px-3 py-2" required />
+          <UiLabel for="email">Email</UiLabel>
+          <UiInput id="email" v-model="email" type="email" required />
         </div>
         <div class="space-y-2">
-          <label class="block text-sm">Kata sandi</label>
-          <input v-model="password" type="password" class="w-full border rounded px-3 py-2" required />
+          <UiLabel for="password">Kata sandi</UiLabel>
+          <UiInput id="password" v-model="password" type="password" required />
           <p class="text-xs opacity-70">Minimal 8 karakter, kombinasi huruf besar, huruf kecil, angka, dan simbol.</p>
         </div>
         <div class="space-y-2">
-          <label class="block text-sm">Name (optional)</label>
-          <input v-model="name" type="text" class="w-full border rounded px-3 py-2" />
+          <UiLabel for="name">Nama (opsional)</UiLabel>
+          <UiInput id="name" v-model="name" type="text" />
         </div>
-        <button :disabled="loading" class="px-4 py-2 bg-primary text-primary-foreground rounded">
+        <UiButton type="submit" :disabled="loading" class="w-full">
           {{ loading ? 'Membuat...' : 'Buat akun' }}
-        </button>
-        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+        </UiButton>
       </form>
-      <p class="mt-4 text-sm">Sudah punya akun? <NuxtLink to="/login" class="underline">Masuk</NuxtLink></p>
+      <div class="mt-4 text-sm">Sudah punya akun? <NuxtLink to="/login" class="underline">Masuk</NuxtLink></div>
     </AuthCard>
   </AppContainer>
 </template>
@@ -32,18 +31,35 @@ const email = ref('')
 const password = ref('')
 const name = ref('')
 const loading = ref(false)
-const error = ref('')
+const alertShown = ref(false)
+const alertTitle = ref('')
+const alertDesc = ref('')
+const alertVariant = ref<'default' | 'destructive' | 'info' | 'success' | 'warning'>('default')
+const alertIcon = ref<string | undefined>(undefined)
 
 async function onSubmit() {
   loading.value = true
-  error.value = ''
   try {
     await $fetch('/api/auth/register', { method: 'POST', body: { email: email.value, password: password.value, name: name.value || undefined } })
-    navigateTo(`/verify?email=${encodeURIComponent(email.value)}`)
+    alertTitle.value = 'Pendaftaran berhasil'
+    alertDesc.value = 'Silakan verifikasi email Anda untuk melanjutkan.'
+    alertVariant.value = 'info'
+    alertIcon.value = 'lucide:mail-check'
+    alertShown.value = true
+    setTimeout(() => navigateTo(`/verify?email=${encodeURIComponent(email.value)}`), 600)
   } catch (e: any) {
-    error.value = e?.data?.message || 'Gagal mendaftar'
+    alertTitle.value = 'Gagal mendaftar'
+    alertDesc.value = e?.data?.message || ''
+    alertVariant.value = 'destructive'
+    alertIcon.value = 'lucide:triangle-alert'
+    alertShown.value = true
   } finally {
     loading.value = false
   }
 }
 </script>
+
+<!-- Inline Alert for register result -->
+<div class="mt-4">
+  <UiAlert v-model="alertShown" :title="alertTitle" :description="alertDesc" :variant="alertVariant" :icon="alertIcon" />
+  </div>
