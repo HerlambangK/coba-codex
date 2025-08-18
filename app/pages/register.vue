@@ -19,6 +19,15 @@
           {{ loading ? 'Membuat...' : 'Buat akun' }}
         </UiButton>
       </form>
+      <div class="mt-4">
+        <UiAlert
+          v-model="alertShown"
+          :title="alertTitle"
+          :description="alertDesc"
+          :variant="alertVariant"
+          :icon="alertIcon"
+        />
+      </div>
       <div class="mt-4 text-sm">Sudah punya akun? <NuxtLink to="/login" class="underline">Masuk</NuxtLink></div>
     </AuthCard>
   </AppContainer>
@@ -41,12 +50,9 @@ async function onSubmit() {
   loading.value = true
   try {
     await $fetch('/api/auth/register', { method: 'POST', body: { email: email.value, password: password.value, name: name.value || undefined } })
-    alertTitle.value = 'Pendaftaran berhasil'
-    alertDesc.value = 'Silakan verifikasi email Anda untuk melanjutkan.'
-    alertVariant.value = 'info'
-    alertIcon.value = 'lucide:mail-check'
-    alertShown.value = true
-    setTimeout(() => navigateTo(`/verify?email=${encodeURIComponent(email.value)}`), 600)
+    // Arahkan langsung ke halaman verifikasi dengan membawa email,
+    // agar pengguna bisa langsung memasukkan PIN verifikasi
+    await navigateTo(`/verify?email=${encodeURIComponent(email.value)}&flash=registered`)
   } catch (e: any) {
     alertTitle.value = 'Gagal mendaftar'
     alertDesc.value = e?.data?.message || ''

@@ -40,6 +40,19 @@ const alertDesc = ref('')
 const alertVariant = ref<'default' | 'destructive' | 'info' | 'success' | 'warning'>('default')
 const alertIcon = ref<string | undefined>(undefined)
 
+// Tampilkan info singkat saat datang dari register
+onMounted(() => {
+  if (route.query.flash === 'registered') {
+    alertTitle.value = 'Verifikasi email'
+    alertDesc.value = email.value
+      ? `Masukkan kode 6 digit yang dikirim ke ${email.value}.`
+      : 'Masukkan kode 6 digit yang dikirim ke email Anda.'
+    alertVariant.value = 'info'
+    alertIcon.value = 'lucide:mail'
+    alertShown.value = true
+  }
+})
+
 async function onSubmit() {
   loading.value = true
   try {
