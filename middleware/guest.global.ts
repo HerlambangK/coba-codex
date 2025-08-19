@@ -11,7 +11,9 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   if (process.server) {
-    const me = await fetchMe()
-    if (me) return navigateTo('/dashboard')
+    const cookieHeader = useRequestHeaders(['cookie']).cookie || ''
+    if (cookieHeader.includes('auth_token=')) {
+      return navigateTo('/dashboard')
+    }
   }
 })

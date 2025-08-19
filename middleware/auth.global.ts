@@ -4,8 +4,12 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (user.value) return
 
   if (process.server) {
-    const me = await fetchMe()
-    if (me) return
+    const cookieHeader = useRequestHeaders(['cookie']).cookie || ''
+    if (!cookieHeader.includes('auth_token=')) {
+      return navigateTo('/login')
+    }
+    await fetchMe().catch(() => {})
+    return
   }
 
   return navigateTo('/login')
