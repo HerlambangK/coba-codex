@@ -1,7 +1,7 @@
 const guestPaths = ['/login', '/register', '/verify']
 const normalizePath = (p: string) => (p.endsWith('/') && p !== '/' ? p.slice(0, -1) : p)
 
-export default defineNuxtRouteMiddleware((to) => {
+export default defineNuxtRouteMiddleware(async (to) => {
   const path = normalizePath(to.path)
   if (!guestPaths.includes(path)) return
 
@@ -13,8 +13,13 @@ export default defineNuxtRouteMiddleware((to) => {
     return
   }
 
-  const token = useCookie('auth_token')
-  if (token.value) {
+  const user = useAuthUser()
+  if (user.value) {
+    return navigateTo('/dashboard')
+  }
+
+  const me = await fetchMe()
+  if (me) {
     return navigateTo('/dashboard')
   }
 })

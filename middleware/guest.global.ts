@@ -5,15 +5,21 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const path = normalizePath(to.path)
   if (!guestPaths.includes(path)) return
 
-  const user = useAuthUser()
-  if (user.value) {
-    return navigateTo('/dashboard')
-  }
-
   if (process.server) {
     const cookieHeader = useRequestHeaders(['cookie']).cookie || ''
     if (cookieHeader.includes('auth_token=')) {
       return navigateTo('/dashboard')
     }
+    return
+  }
+
+  const user = useAuthUser()
+  if (user.value) {
+    return navigateTo('/dashboard')
+  }
+
+  const me = await fetchMe()
+  if (me) {
+    return navigateTo('/dashboard')
   }
 })

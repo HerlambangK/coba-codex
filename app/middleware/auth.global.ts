@@ -1,4 +1,4 @@
-export default defineNuxtRouteMiddleware((to) => {
+export default defineNuxtRouteMiddleware(async (to) => {
   if (!to.path.startsWith('/dashboard')) return
 
   if (process.server) {
@@ -9,8 +9,11 @@ export default defineNuxtRouteMiddleware((to) => {
     return
   }
 
-  const token = useCookie('auth_token')
-  if (!token.value) {
+  const user = useAuthUser()
+  if (user.value) return
+
+  const me = await fetchMe()
+  if (!me) {
     return navigateTo('/login')
   }
 })
