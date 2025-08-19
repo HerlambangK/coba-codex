@@ -9,7 +9,9 @@ export function useAuth() {
 
   async function fetchMe() {
     try {
-      const data = await $fetch<Me>('/api/auth/me')
+      const data = await $fetch<Me>('/api/auth/me', {
+        headers: process.server ? useRequestHeaders(['cookie']) : undefined,
+      })
       me.value = data
       meState.value = data
       return data
@@ -45,4 +47,3 @@ export function useAuth() {
 
   return { me, fetchMe, login, logout }
 }
-

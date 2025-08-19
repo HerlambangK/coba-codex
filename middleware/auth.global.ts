@@ -9,11 +9,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return
   }
 
-  const user = useAuthUser()
-  if (user.value) return
-
-  const me = await fetchMe()
-  if (!me) {
-    return navigateTo('/login')
-  }
+  const { me, fetchMe } = useAuth()
+  if (me.value) return
+  const current = await fetchMe()
+  if (!current) return navigateTo('/login')
 })
