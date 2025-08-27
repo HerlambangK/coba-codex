@@ -23,7 +23,11 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!user.isVerified) {
-    return { needsVerification: true }
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Forbidden',
+      data: { needsVerification: true },
+    })
   }
 
   const token = signToken({ sub: user.id, role: user.role })
